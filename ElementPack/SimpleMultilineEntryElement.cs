@@ -98,7 +98,7 @@ namespace ElementPack
 			set { 
 				autocorrectionType = value;
 				if (entry != null)
-					this.autocorrectionType = value;
+					entry.AutocorrectionType = value;
 			}
 		}
 		
@@ -131,8 +131,6 @@ namespace ElementPack
 		UITextView entry;
 		static UIFont font = UIFont.BoldSystemFontOfSize (17);
 
-		public event EventHandler Changed;
-		public event Func<bool> ShouldReturn;
 		/// <summary>
 		/// Constructs an MultilineEntryElement with the given caption, placeholder and initial value.
 		/// </summary>
@@ -218,12 +216,6 @@ namespace ElementPack
 				entry = CreateTextField (new RectangleF (size.Width, yOffset, width, size.Height + (height - 44)));
 				entry.Font = inputFont;
 				
-				entry.Changed += delegate {
-					FetchValue ();
-				};
-				entry.Ended += delegate {
-					FetchValue ();
-				};
 				entry.Started += delegate {
 					entry.ReturnKeyType = UIReturnKeyType.Default;
 
@@ -244,29 +236,6 @@ namespace ElementPack
 			return cell;
 		}
 		
-		/// <summary>
-		///  Copies the value from the UITextField in the EntryElement to the
-		//   Value property and raises the Changed event if necessary.
-		/// </summary>
-		public void FetchValue ()
-		{
-			if (entry == null) return;
-			
-			var newValue = entry.Text;
-			if (newValue != Value) {
-				var currentPos = entry.SelectedRange.Location;
-				Value = newValue;
-				
-				if (Changed != null) {
-					Changed (this, EventArgs.Empty);
-				}
-				
-				if (currentPos > 0) {
-					entry.SelectedRange = new NSRange(currentPos, 0);
-				}
-			}
-		}
-
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing) {
